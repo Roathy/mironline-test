@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "829560051923",
+    "project_id": "mironline-flutter-project",
+    "storage_bucket": "mironline-flutter-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:829560051923:android:4ca0bed0db54321f7adc26",
+        "android_client_info": {
+          "package_name": "com.mironline.mironline"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABkorIRVvEfCr-i_X7czN-NcMscGak4KY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
