@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mironline/firebase_options.dart';
 
-import 'package:mironline/views/login_view.dart';
+import 'package:mironline/views/verify_email_view.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -22,15 +22,21 @@ class HomePage extends StatelessWidget {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
+
               final user = FirebaseAuth.instance.currentUser;
               if (user?.emailVerified ?? false) {
-                print('Your email is already verified');
+                return const SizedBox.shrink();
               } else {
-                print('You need to verify your email');
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const VerifyEmailView()));
+                return const VerifyEmailView();
               }
-              return const Text('done');
+            // return const Text('done');
             default:
-              return const Text('Loading...');
+              return const CircularProgressIndicator();
           }
         },
       ),

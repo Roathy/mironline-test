@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mironline/firebase_options.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -33,62 +31,55 @@ class _LoginViewState extends State<LoginView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
-        backgroundColor: Colors.blue,
       ),
-      body: FutureBuilder(
-        future: Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return Column(
-                children: [
-                  TextField(
-                    controller: _email,
-                    decoration: const InputDecoration(
-                        hintText: 'Please enter your email'),
-                    keyboardType: TextInputType.emailAddress,
-                    autocorrect: false,
-                  ),
-                  TextField(
-                    controller: _password,
-                    decoration:
-                        const InputDecoration(hintText: 'Enter your password'),
-                    autocorrect: false,
-                    obscureText: true,
-                  ),
-                  TextButton(
-                      onPressed: () async {
-                        final email = _email.text;
-                        final password = _password.text;
-                        try {
-                          final userCredential = await FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                                  email: email, password: password);
-                          // final userCredential = await FirebaseAuth.instance
-                          // .createUserWithEmailAndPassword(
-                          // email: email,
-                          // password: password,
-                          // );
-                          print(userCredential);
-                        } on FirebaseAuthException catch (error) {
-                          print('Failed with error code: ${error.code}');
-                          print(error.message);
-                        }
-                        // catch (error) {
-                        //   print('Something went bad...');
-                        //   print(error.runtimeType);
-                        //   print(error);
-                        // }
-                      },
-                      child: const Text('Login')),
-                ],
-              );
-            default:
-              return const Text('Loading...');
-          }
-        },
+      body: Column(
+        children: [
+          TextField(
+            controller: _email,
+            decoration:
+                const InputDecoration(hintText: 'Please enter your email'),
+            keyboardType: TextInputType.emailAddress,
+            autocorrect: false,
+          ),
+          TextField(
+            controller: _password,
+            decoration: const InputDecoration(hintText: 'Enter your password'),
+            autocorrect: false,
+            obscureText: true,
+          ),
+          TextButton(
+            onPressed: () async {
+              final email = _email.text;
+              final password = _password.text;
+              try {
+                final userCredential = await FirebaseAuth.instance
+                    .signInWithEmailAndPassword(
+                        email: email, password: password);
+                // final userCredential = await FirebaseAuth.instance
+                // .createUserWithEmailAndPassword(
+                // email: email,
+                // password: password,
+                // );
+                print(userCredential);
+              } on FirebaseAuthException catch (error) {
+                print('Failed with error code: ${error.code}');
+                print(error.message);
+              }
+              // catch (error) {
+              //   print('Something went bad...');
+              //   print(error.runtimeType);
+              //   print(error);
+              // }
+            },
+            child: const Text('Login'),
+          ),
+          TextButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/register/', (route) => false);
+              },
+              child: const CircularProgressIndicator())
+        ],
       ),
     );
   }
