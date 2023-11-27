@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:mironline/firebase_options.dart';
+import 'dart:developer' as devtools show log;
 
 import 'package:mironline/views/login_view.dart';
 import 'package:mironline/views/register_view.dart';
+import 'package:mironline/views/verify_email_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,13 +53,13 @@ class HomePage extends StatelessWidget {
             if (user != null) {
               if (user.emailVerified) {
                 print('Email is verified');
+                return const NotesView();
               } else {
                 return const VerifyEmailView();
               }
             } else {
               return const LoginView();
             }
-            return const Text('Done');
           default:
             return const CircularProgressIndicator();
         }
@@ -66,26 +68,80 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class VerifyEmailView extends StatefulWidget {
-  const VerifyEmailView({super.key});
+enum MenuAction { settings, logout }
+
+class NotesView extends StatefulWidget {
+  const NotesView({super.key});
 
   @override
-  State<VerifyEmailView> createState() => _VerifyEmailViewState();
+  State<NotesView> createState() => _NotesViewState();
 }
 
-class _VerifyEmailViewState extends State<VerifyEmailView> {
+class _NotesViewState extends State<NotesView> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Text('Please verify your email'),
-        TextButton(
-            onPressed: () async {
-              final user = FirebaseAuth.instance.currentUser;
-              await user?.sendEmailVerification();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Main UI'),
+        actions: [
+          PopupMenuButton<MenuAction>(
+            onSelected: (value) async {
+              switch (value) {
+                case MenuAction.settings:
+                  final shouldLogout = await showLogOutDialog(context);
+                  if (shouldLogout) {
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil('/login', (_) => false);
+                  }
+                  devtools.log(shouldLogout.toString());
+                  break;
+                case MenuAction.logout:
+                  final shouldLogout = await showLogOutDialog(context);
+                  devtools.log(shouldLogout.toString());
+                  break;
+              }
             },
-            child: const Text('Send email verification'))
-      ],
+            itemBuilder: (context) {
+              return const [
+                PopupMenuItem<MenuAction>(
+                  value: MenuAction.settings,
+                  child: Text('Settings'),
+                ),
+                PopupMenuItem<MenuAction>(
+                  value: MenuAction.logout,
+                  child: Text('Log out'),
+                ),
+              ];
+            },
+          )
+        ],
+      ),
+      body: const Text('Hello world!'),
     );
   }
+}
+
+Future<bool> showLogOutDialog(BuildContext context) {
+  return showDialog<bool>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Sign out'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Confirm')),
+        ],
+      );
+    },
+  ).then((value) => value ?? false);
 }
