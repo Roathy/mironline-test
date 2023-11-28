@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:developer' as devtools show log;
+
+import 'package:mironline/constants/routes.dart';
+import 'package:mironline/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -55,30 +59,32 @@ class _LoginViewState extends State<LoginView> {
                 final userCredential = await FirebaseAuth.instance
                     .signInWithEmailAndPassword(
                         email: email, password: password);
-                // final userCredential = await FirebaseAuth.instance
-                // .createUserWithEmailAndPassword(
-                // email: email,
-                // password: password,
-                // );
-                print(userCredential);
+                if (context.mounted) {
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil(notesRoute, (route) => false);
+                  devtools.log(userCredential.toString());
+                }
               } on FirebaseAuthException catch (error) {
-                print('Failed with error code: ${error.code}');
-                print(error.message);
+                if (mounted) {
+                  await showErrorDialog(context, error.code);
+                }
+                devtools.log('Failed with error code: ${error.code}');
+                devtools.log(error.message.toString());
+              } catch (error) {
+                if (mounted) {
+                  await showErrorDialog(context, error.toString());
+                }
               }
-              // catch (error) {
-              //   print('Something went bad...');
-              //   print(error.runtimeType);
-              //   print(error);
-              // }
             },
             child: const Text('Login'),
           ),
           TextButton(
               onPressed: () {
                 Navigator.of(context)
-                    .pushNamedAndRemoveUntil('/register/', (route) => false);
+                    .pushNamedAndRemoveUntil(registerRoute, (route) => false);
               },
-              child: const CircularProgressIndicator())
+              // child: const CircularProgressIndicator())
+              child: const Text("Don't have an account yet? Register here"))
         ],
       ),
     );

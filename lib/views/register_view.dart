@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:developer' as devtools show log;
+
+import 'package:mironline/constants/routes.dart';
+import 'package:mironline/utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -57,17 +61,32 @@ class _RegisterViewState extends State<RegisterView> {
                     email: email,
                     password: password,
                   );
-                  print(userCredential);
+                  devtools.log(userCredential.toString());
                 } on FirebaseAuthException catch (error) {
-                  print('CODE: ${error.code} MESSAGE: ${error.message}');
+                  devtools.log('CODE: ${error.code} MESSAGE: ${error.message}');
                   if (error.code == 'invalid-email') {
-                    print(error.message);
+                    if (mounted) {
+                      await showErrorDialog(context, error.message.toString());
+                    }
+                    devtools.log(error.message.toString());
+                  } else if (error.code == 'weak-password') {
+                    if (mounted) {
+                      await showErrorDialog(context, error.message.toString());
+                    }
+                    devtools.log(error.message.toString());
+                  } else if (error.code == 'email-already-in-use') {
+                    if (mounted) {
+                      await showErrorDialog(context, error.message.toString());
+                    }
+                    devtools.log('The email address is already in use');
+                  } else {
+                    if (mounted) {
+                      await showErrorDialog(context, 'Error: ${error.code}');
+                    }
                   }
-                  if (error.code == 'weak-password') {
-                    print(error.message);
-                  }
-                  if (error.code == 'email-already-in-use') {
-                    print('The email address is already in use');
+                } catch (error) {
+                  if (mounted) {
+                    await showErrorDialog(context, error.toString());
                   }
                 }
               },
@@ -75,7 +94,7 @@ class _RegisterViewState extends State<RegisterView> {
           TextButton(
               onPressed: () {
                 Navigator.of(context)
-                    .pushNamedAndRemoveUntil('/login/', (route) => false);
+                    .pushNamedAndRemoveUntil(loginRoute, (route) => false);
               },
               child: const Text('Already registered? Login here'))
         ],

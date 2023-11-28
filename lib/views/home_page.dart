@@ -25,7 +25,6 @@ class HomePage extends StatelessWidget {
               if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               }
-
               final user = FirebaseAuth.instance.currentUser;
               if (user?.emailVerified ?? false) {
                 return const SizedBox.shrink();
@@ -34,7 +33,6 @@ class HomePage extends StatelessWidget {
                     builder: (context) => const VerifyEmailView()));
                 return const VerifyEmailView();
               }
-            // return const Text('done');
             default:
               return const CircularProgressIndicator();
           }

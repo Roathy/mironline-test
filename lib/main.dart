@@ -7,6 +7,7 @@ import 'dart:developer' as devtools show log;
 import 'package:mironline/views/login_view.dart';
 import 'package:mironline/views/register_view.dart';
 import 'package:mironline/views/verify_email_view.dart';
+import 'package:mironline/constants/routes.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,10 +17,12 @@ void main() {
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       useMaterial3: true,
     ),
-    home: const HomePage(),
+    // home: const HomePage(),
     routes: {
-      '/login/': (context) => const LoginView(),
-      '/register/': (context) => const RegisterView(),
+      '/': (context) => const HomePage(),
+      registerRoute: (context) => const RegisterView(),
+      loginRoute: (context) => const LoginView(),
+      notesRoute: (context) => const NotesView(),
     },
   ));
 }
@@ -36,23 +39,10 @@ class HomePage extends StatelessWidget {
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
-            //   if (snapshot.hasError) {
-            //     return Text('Error: ${snapshot.error}');
-            //   }
-
-            //   final user = FirebaseAuth.instance.currentUser;
-            //   if (user?.emailVerified ?? false) {
-            //     return const Text('Done');
-            //   } else {
-            //     // Navigator.of(context).push(MaterialPageRoute(
-            //     // builder: (context) => const VerifyEmailView()));
-            //     print(user);
-            //     return const VerifyEmailView();
-            //   }
             final user = FirebaseAuth.instance.currentUser;
             if (user != null) {
               if (user.emailVerified) {
-                print('Email is verified');
+                devtools.log('Email is verified');
                 return const NotesView();
               } else {
                 return const VerifyEmailView();
@@ -68,7 +58,7 @@ class HomePage extends StatelessWidget {
   }
 }
 
-enum MenuAction { settings, logout }
+enum MenuAction { logout }
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
@@ -87,27 +77,21 @@ class _NotesViewState extends State<NotesView> {
           PopupMenuButton<MenuAction>(
             onSelected: (value) async {
               switch (value) {
-                case MenuAction.settings:
+                case MenuAction.logout:
                   final shouldLogout = await showLogOutDialog(context);
                   if (shouldLogout) {
                     await FirebaseAuth.instance.signOut();
-                    Navigator.of(context)
-                        .pushNamedAndRemoveUntil('/login', (_) => false);
+                    if (context.mounted) {
+                      Navigator.of(context)
+                          .pushNamedAndRemoveUntil(loginRoute, (_) => false);
+                    }
                   }
-                  devtools.log(shouldLogout.toString());
-                  break;
-                case MenuAction.logout:
-                  final shouldLogout = await showLogOutDialog(context);
                   devtools.log(shouldLogout.toString());
                   break;
               }
             },
             itemBuilder: (context) {
               return const [
-                PopupMenuItem<MenuAction>(
-                  value: MenuAction.settings,
-                  child: Text('Settings'),
-                ),
                 PopupMenuItem<MenuAction>(
                   value: MenuAction.logout,
                   child: Text('Log out'),
