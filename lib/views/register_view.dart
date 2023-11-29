@@ -40,8 +40,7 @@ class _RegisterViewState extends State<RegisterView> {
         children: [
           TextField(
             controller: _email,
-            decoration:
-                const InputDecoration(hintText: 'Please enter your email'),
+            decoration: const InputDecoration(hintText: 'Please enter your email'),
             keyboardType: TextInputType.emailAddress,
             autocorrect: false,
           ),
@@ -56,12 +55,18 @@ class _RegisterViewState extends State<RegisterView> {
                 final email = _email.text;
                 final password = _password.text;
                 try {
-                  final userCredential = await FirebaseAuth.instance
-                      .createUserWithEmailAndPassword(
+                  await FirebaseAuth.instance.createUserWithEmailAndPassword(
                     email: email,
                     password: password,
                   );
-                  devtools.log(userCredential.toString());
+                  final user = FirebaseAuth.instance.currentUser;
+                  await user?.sendEmailVerification();
+                  if (mounted) {
+                    Navigator.of(context).pushNamed(
+                      verifyEmailRoute,
+                    );
+                  }
+                  // devtools.log(userCredential.toString());
                 } on FirebaseAuthException catch (error) {
                   devtools.log('CODE: ${error.code} MESSAGE: ${error.message}');
                   if (error.code == 'invalid-email') {
@@ -93,8 +98,7 @@ class _RegisterViewState extends State<RegisterView> {
               child: const Text('Register')),
           TextButton(
               onPressed: () {
-                Navigator.of(context)
-                    .pushNamedAndRemoveUntil(loginRoute, (route) => false);
+                Navigator.of(context).pushNamedAndRemoveUntil(loginRoute, (route) => false);
               },
               child: const Text('Already registered? Login here'))
         ],

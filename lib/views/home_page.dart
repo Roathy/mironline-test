@@ -1,9 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mironline/constants/routes.dart';
 import 'package:mironline/firebase_options.dart';
-
-import 'package:mironline/views/verify_email_view.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -29,9 +28,10 @@ class HomePage extends StatelessWidget {
               if (user?.emailVerified ?? false) {
                 return const SizedBox.shrink();
               } else {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const VerifyEmailView()));
-                return const VerifyEmailView();
+                Navigator.of(context).pushNamedAndRemoveUntil(verifyEmailRoute, (route) => false);
+                // Navigator.of(context).push(MaterialPageRoute(builder: (context) => const VerifyEmailView()));
+                // return const VerifyEmailView();
+                return const HomePage();
               }
             default:
               return const CircularProgressIndicator();
