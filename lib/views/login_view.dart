@@ -4,6 +4,7 @@ import 'dart:developer' as devtools show log;
 
 import 'package:mironline/constants/routes.dart';
 import 'package:mironline/utilities/show_error_dialog.dart';
+import 'package:mironline/views/verify_email_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -40,8 +41,7 @@ class _LoginViewState extends State<LoginView> {
         children: [
           TextField(
             controller: _email,
-            decoration:
-                const InputDecoration(hintText: 'Please enter your email'),
+            decoration: const InputDecoration(hintText: 'Please enter your email'),
             keyboardType: TextInputType.emailAddress,
             autocorrect: false,
           ),
@@ -56,13 +56,20 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                final userCredential = await FirebaseAuth.instance
-                    .signInWithEmailAndPassword(
-                        email: email, password: password);
-                if (context.mounted) {
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil(notesRoute, (route) => false);
-                  devtools.log(userCredential.toString());
+                final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+                final user = FirebaseAuth.instance.currentUser;
+                if (user?.emailVerified ?? false) {
+                  // is verified
+                  if (context.mounted) {
+                    Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (route) => false);
+                    devtools.log(userCredential.toString());
+                  }
+                } else {
+                  // is NOT verified
+                  if (context.mounted) {
+                    Navigator.of(context).pushNamedAndRemoveUntil(verifyEmailRoute, (route) => false);
+                    devtools.log(userCredential.toString());
+                  }
                 }
               } on FirebaseAuthException catch (error) {
                 if (mounted) {
@@ -80,8 +87,7 @@ class _LoginViewState extends State<LoginView> {
           ),
           TextButton(
               onPressed: () {
-                Navigator.of(context)
-                    .pushNamedAndRemoveUntil(registerRoute, (route) => false);
+                Navigator.of(context).pushNamedAndRemoveUntil(registerRoute, (route) => false);
               },
               // child: const CircularProgressIndicator())
               child: const Text("Don't have an account yet? Register here"))

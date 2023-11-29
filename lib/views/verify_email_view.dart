@@ -22,7 +22,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
       body: Center(
         child: Column(children: [
           const Text("We've sent you an email verification. Please open it in order to validate your account."),
-          const Text("If you haven't received a verificatino email yet, press the button below."),
+          const Text("If you haven't received a verification email yet, press the button below."),
           TextButton(
             onPressed: () async {
               await showCustomDialog(context, 'Please check your inbox', 'An email has already been sent to confirm your account');
